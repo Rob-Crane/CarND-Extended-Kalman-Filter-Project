@@ -96,7 +96,7 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
     const VectorXd &z = measurement_pack.raw_measurements_;
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       MatrixXd Hj = tools.CalculateJacobian(z);
-      ekf_.UpdateEKF(z, Hj, R_radar_);
+      ekf_.UpdateEKF(z, R_radar_, Hj);
     } else {
       ekf_.Update(z, R_laser_);
     }

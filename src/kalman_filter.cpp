@@ -14,14 +14,10 @@ KalmanFilter::KalmanFilter() {}
 
 KalmanFilter::~KalmanFilter() {}
 
-void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, // MatrixXd &F_in,
-                        MatrixXd &H_in/*, MatrixXd &R_in, MatrixXd &Q_in*/) {
+void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &H_in) {
   x_ = x_in;
   P_ = P_in;
-  //F_ = F_in;
   H_ = H_in;
-  //R_ = R_in;
-  //Q_ = Q_in;
 }
 
 void KalmanFilter::Predict(long long delta_T) {
@@ -47,18 +43,18 @@ void KalmanFilter::Predict(long long delta_T) {
 }
 
 void KalmanFilter::Update(const VectorXd &z, const MatrixXd &R) {
-  /**
-   * TODO:
-   * - Use the sensor type to perform the update step.
-   * - Update the state and covariance matrices.
-   */
-  /**
-   * TODO: update the state by using Kalman Filter equations
-   */
+    UpdateEKF(z, R, H_);
 }
 
-void KalmanFilter::UpdateEKF(const VectorXd &z, const MatrixXd &H, const MatrixXd &R) {
+void KalmanFilter::UpdateEKF(const VectorXd &z,
+                             const MatrixXd &R,
+                             const MatrixXd &H) {
   /**
    * TODO: update the state by using Extended Kalman Filter equations
    */
+  VectorXd y = z - H * x_;
+  MatrixXd S = H * P_ * H.transpose() + R;
+  MatrixXd K = P_ * H.transpose() * S.inverse();
+  x_ = x_ + K * y;
+  P_ = (MatrixXd::Identity(4,4) - K*H)*P_;
 }
