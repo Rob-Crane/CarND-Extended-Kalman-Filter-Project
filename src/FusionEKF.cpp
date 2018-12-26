@@ -36,11 +36,6 @@ FusionEKF::FusionEKF() {
               0, 0.0009, 0,
               0, 0, 0.09;
 
-  /**
-   * TODO: Finish initializing the FusionEKF.
-   * TODO: Set the process and measurement noises
-   */
-
   // Lidar position component mapped directly, ignore velocity.
   H_laser_ << 1, 0, 0, 0,
              0, 1, 0, 0;
@@ -65,8 +60,8 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       float y_comp = std::sin(measurements[1]);
       x << measurements[0] * x_comp,
            measurements[0] * y_comp,
-           measurements[2] * x_comp,
-           measurements[2] * y_comp;
+           0,
+           0;
     
     }
     else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
