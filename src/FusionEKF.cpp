@@ -88,7 +88,6 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      * Prediction
      */
     ekf_.Predict(measurement_pack.timestamp_ - previous_timestamp_);
-    previous_timestamp_ = measurement_pack.timestamp_;
 
     /**
      * Update
@@ -101,4 +100,5 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
       ekf_.Update(z, R_laser_);
     }
   }
+  previous_timestamp_ = measurement_pack.timestamp_;
 }
