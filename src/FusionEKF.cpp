@@ -15,23 +15,7 @@ using std::vector;
  */
 FusionEKF::FusionEKF() {
   is_initialized_ = false;
-
   previous_timestamp_ = 0;
-
-  // initializing matrices
-  R_laser_ = MatrixXd(2, 2);
-  R_radar_ = MatrixXd(3, 3);
-  H_laser_ = MatrixXd(2, 4);
-
-  //measurement covariance matrix - laser
-  R_laser_ << 0.0225, 0,
-              0, 0.0225;
-
-  //measurement covariance matrix - radar
-  R_radar_ << 0.09, 0, 0,
-              0, 0.0009, 0,
-              0, 0, 0.09;
-
 }
 
 /**
@@ -69,7 +53,16 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
          0, 1000,    0,    0,
          0,    0, 1000,    0,
          0,    0,    0, 1000;
-    ekf_.Init(x, P);
+
+  MatrixXd R_laser(2, 2);
+  R_laser << 0.0225, 0,
+              0, 0.0225;
+  MatrixXd R_radar(3, 3);
+  R_radar << 0.09, 0, 0,
+              0, 0.0009, 0,
+              0, 0, 0.09;
+
+    ekf_.Init(x, P, R_laser, R_radar);
     is_initialized_ = true;
   } else {
     /**
@@ -85,9 +78,9 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      */
     const VectorXd &z = measurements;
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-      ekf_.RadarUpdate(z, R_radar_);
+      ekf_.RadarUpdate(z);
     } else {
-      ekf_.LidarUpdate(z, R_laser_);
+      ekf_.LidarUpdate(z);
     }
   }
   previous_timestamp_ = measurement_pack.timestamp_;

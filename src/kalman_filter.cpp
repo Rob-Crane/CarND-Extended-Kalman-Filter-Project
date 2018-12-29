@@ -10,9 +10,14 @@ KalmanFilter::KalmanFilter() {}
 
 KalmanFilter::~KalmanFilter() {}
 
-void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in) {
+void KalmanFilter::Init(VectorXd &x_in,
+                        MatrixXd &P_in,
+                        MatrixXd &R_laser_in,
+                        MatrixXd &R_radar_in) {
   x_ = x_in;
   P_ = P_in;
+  R_laser_ = R_laser_in;
+  R_radar_ = R_radar_in;
 }
 
 void KalmanFilter::Predict(float delta_T) {
@@ -37,19 +42,18 @@ void KalmanFilter::Predict(float delta_T) {
   P_ = F * P_ * F.transpose() + Q;
 }
 
-void KalmanFilter::LidarUpdate(const VectorXd &z, const MatrixXd &R) {
+void KalmanFilter::LidarUpdate(const VectorXd &z) {
   MatrixXd H(2,4);
   H << 1, 0, 0, 0,
        0, 1, 0, 0;
   VectorXd y = z - H * x_;
-  MatrixXd S = H * P_ * H.transpose() + R;
+  MatrixXd S = H * P_ * H.transpose() + R_laser_;
   MatrixXd K = P_ * H.transpose() * S.inverse();
   x_ = x_ + K * y;
   P_ = (MatrixXd::Identity(4,4) - K*H)*P_;
 }
 
-#include <iostream>
-void KalmanFilter::RadarUpdate(const VectorXd &z, const MatrixXd &R) {
+void KalmanFilter::RadarUpdate(const VectorXd &z) {
 
   float phi = atan2(x_[1], x_[0]);
   float range = sqrt(pow(x_[0], 2) + pow(x_[1], 2));
@@ -64,10 +68,9 @@ void KalmanFilter::RadarUpdate(const VectorXd &z, const MatrixXd &R) {
       if (y[1] > M_PI)
           y[1] = y[1] - 2*M_PI;
   }
-  std::cout<<y[1]<<std::endl;
   Tools tools;
   const MatrixXd& H = tools.CalculateJacobian(x_);
-  MatrixXd S = H * P_ * H.transpose() + R;
+  MatrixXd S = H * P_ * H.transpose() + R_radar_;
   MatrixXd K = P_ * H.transpose() * S.inverse();
   x_ = x_ + K * y;
   P_ = (MatrixXd::Identity(4,4) - K*H)*P_;

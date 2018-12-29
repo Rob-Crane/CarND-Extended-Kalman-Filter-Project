@@ -22,7 +22,9 @@ class KalmanFilter {
    * @param H_in Measurement matrix
    */
   void Init(Eigen::VectorXd &x_in,
-            Eigen::MatrixXd &P_in);
+            Eigen::MatrixXd &P_in,
+            Eigen::MatrixXd &R_laser_in,
+            Eigen::MatrixXd &R_radar_in);
 
   /**
    * Prediction Predicts the state and the state covariance
@@ -31,12 +33,6 @@ class KalmanFilter {
    */
   void Predict(float delta_T);
 
-  /**
-   * Updates the state by using standard Kalman Filter equations
-   * with fixed state-to-sensor space mapping matrix H.
-   * @param z The measurement at k+1
-   * @param R The measurement covariance matrix.
-   */
   //void Update(const Eigen::VectorXd &z, const Eigen::MatrixXd &R);
 
   /**
@@ -49,13 +45,23 @@ class KalmanFilter {
                  //const Eigen::MatrixXd &R,
                  //const Eigen::MatrixXd &H);
 
-  void LidarUpdate(const Eigen::VectorXd &z, const Eigen::MatrixXd &R);
-  void RadarUpdate(const Eigen::VectorXd &z, const Eigen::MatrixXd &R);
+  /**
+   * Updates the state by using standard Kalman Filter equations
+   * with fixed state-to-sensor space mapping matrix H.
+   * @param z The measurement at k+1
+   */
+  void LidarUpdate(const Eigen::VectorXd &z);
+  void RadarUpdate(const Eigen::VectorXd &z);
   // state vector
   Eigen::VectorXd x_;
 
   // state covariance matrix
   Eigen::MatrixXd P_;
+
+  // Measurement covariance matrix for laser
+  Eigen::MatrixXd R_laser_;
+  // Measurement covariance matrix for radar
+  Eigen::MatrixXd R_radar_;
 };
 
 #endif // KALMAN_FILTER_H_
