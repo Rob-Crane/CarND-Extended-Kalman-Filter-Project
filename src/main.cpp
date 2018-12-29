@@ -137,7 +137,10 @@ int main() {
           msgJson["rmse_vx"] = RMSE(2);
           msgJson["rmse_vy"] = RMSE(3);
           auto msg = "42[\"estimate_marker\"," + msgJson.dump() + "]";
-          // std::cout << msg << std::endl;
+          //std::cout<<"vx: "<<v1<<" vy: "<<v2
+                   //<<" rmse_vx: "<<RMSE(2)
+                   //<<" rmse_vy: "<< RMSE(3)
+                   //<<std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
 
         }  // end "telemetry" if

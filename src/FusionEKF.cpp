@@ -22,10 +22,6 @@ FusionEKF::FusionEKF() {
   R_laser_ = MatrixXd(2, 2);
   R_radar_ = MatrixXd(3, 3);
   H_laser_ = MatrixXd(2, 4);
-  Hj_ = MatrixXd(3, 4);
-  Hj_ << 0, 0, 0, 0,
-         0, 0, 0, 0,
-         0, 0, 0, 0;
 
   //measurement covariance matrix - laser
   R_laser_ << 0.0225, 0,
@@ -36,9 +32,6 @@ FusionEKF::FusionEKF() {
               0, 0.0009, 0,
               0, 0, 0.09;
 
-  // Lidar position component mapped directly, ignore velocity.
-  H_laser_ << 1, 0, 0, 0,
-             0, 1, 0, 0;
 }
 
 /**
@@ -48,13 +41,13 @@ FusionEKF::~FusionEKF() {}
 
 void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
 
+  const Eigen::VectorXd& measurements =
+    measurement_pack.raw_measurements_;
   /**
    * Initialization
    */
   if (!is_initialized_) {
     VectorXd x(4);
-    const Eigen::VectorXd& measurements =
-        measurement_pack.raw_measurements_;
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
       float x_comp = std::cos(measurements[1]);
       float y_comp = std::sin(measurements[1]);
@@ -76,23 +69,25 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
          0, 1000,    0,    0,
          0,    0, 1000,    0,
          0,    0,    0, 1000;
-    ekf_.Init(x, P, H_laser_);
+    ekf_.Init(x, P);
     is_initialized_ = true;
   } else {
     /**
      * Prediction
      */
-    ekf_.Predict(measurement_pack.timestamp_ - previous_timestamp_);
+    //if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR)
+      //return;
+    float delta_T = (measurement_pack.timestamp_ - previous_timestamp_) / 1.0E6;
+    ekf_.Predict(delta_T);
 
     /**
      * Update
      */
-    const VectorXd &z = measurement_pack.raw_measurements_;
+    const VectorXd &z = measurements;
     if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-      MatrixXd Hj = tools.CalculateJacobian(z);
-      ekf_.UpdateEKF(z, R_radar_, Hj);
+      ekf_.RadarUpdate(z, R_radar_);
     } else {
-      ekf_.Update(z, R_laser_);
+      ekf_.LidarUpdate(z, R_laser_);
     }
   }
   previous_timestamp_ = measurement_pack.timestamp_;

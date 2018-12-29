@@ -22,15 +22,14 @@ class KalmanFilter {
    * @param H_in Measurement matrix
    */
   void Init(Eigen::VectorXd &x_in,
-            Eigen::MatrixXd &P_in,
-            Eigen::MatrixXd &H_in);
+            Eigen::MatrixXd &P_in);
 
   /**
    * Prediction Predicts the state and the state covariance
    * using the process model
    * @param delta_T Time between k and k+1 in s
    */
-  void Predict(long long delta_T);
+  void Predict(float delta_T);
 
   /**
    * Updates the state by using standard Kalman Filter equations
@@ -38,7 +37,7 @@ class KalmanFilter {
    * @param z The measurement at k+1
    * @param R The measurement covariance matrix.
    */
-  void Update(const Eigen::VectorXd &z, const Eigen::MatrixXd &R);
+  //void Update(const Eigen::VectorXd &z, const Eigen::MatrixXd &R);
 
   /**
    * Updates the state by using Extended Kalman Filter equations
@@ -46,18 +45,17 @@ class KalmanFilter {
    * @param R The measurement covariance matrix
    * @param H The Jacobian matrix to use for EKF.
    */
-  void UpdateEKF(const Eigen::VectorXd &z,
-                 const Eigen::MatrixXd &R,
-                 const Eigen::MatrixXd &H);
+  //void UpdateEKF(const Eigen::VectorXd &z,
+                 //const Eigen::MatrixXd &R,
+                 //const Eigen::MatrixXd &H);
 
+  void LidarUpdate(const Eigen::VectorXd &z, const Eigen::MatrixXd &R);
+  void RadarUpdate(const Eigen::VectorXd &z, const Eigen::MatrixXd &R);
   // state vector
   Eigen::VectorXd x_;
 
   // state covariance matrix
   Eigen::MatrixXd P_;
-
-  // measurement matrix
-  Eigen::MatrixXd H_;
 };
 
 #endif // KALMAN_FILTER_H_

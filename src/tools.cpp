@@ -31,11 +31,9 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
   return ret;
 }
 
-MatrixXd Tools::CalculateJacobian(const VectorXd& z) {
-  float x_comp = std::cos(z[1]);
-  float y_comp = std::sin(z[1]);
-  float px = z[0] * x_comp;
-  float py = z[0] * y_comp;
+MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
+  float px = x_state[0];
+  float py = x_state[1];
               
   MatrixXd Hj(3,4);
   if (px == 0 && py == 0) {
@@ -46,8 +44,8 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& z) {
     float px2 = px*px;
     float py2 = py*py;
 
-    float vx = z[2] * x_comp;
-    float vy = z[2] * y_comp;
+    float vx = x_state[2];
+    float vy = x_state[3];
     float term00 = px/sqrt(px2+py2);
     float term01 = py/sqrt(px2+py2);
     float term10 = -py/(px2+py2);
