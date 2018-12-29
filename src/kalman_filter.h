@@ -60,6 +60,8 @@ class KalmanFilter {
 
   // Measurement covariance matrix for laser
   Eigen::MatrixXd R_laser_;
+  // Laser measurement function
+  Eigen::MatrixXd H_laser_;
   // Measurement covariance matrix for radar
   Eigen::MatrixXd R_radar_;
 };

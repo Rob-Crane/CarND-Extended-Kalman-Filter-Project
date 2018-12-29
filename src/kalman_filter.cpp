@@ -18,6 +18,9 @@ void KalmanFilter::Init(VectorXd &x_in,
   P_ = P_in;
   R_laser_ = R_laser_in;
   R_radar_ = R_radar_in;
+  H_laser_ = MatrixXd(2,4);
+  H_laser_ << 1, 0, 0, 0,
+             0, 1, 0, 0;
 }
 
 void KalmanFilter::Predict(float delta_T) {
@@ -43,14 +46,11 @@ void KalmanFilter::Predict(float delta_T) {
 }
 
 void KalmanFilter::LidarUpdate(const VectorXd &z) {
-  MatrixXd H(2,4);
-  H << 1, 0, 0, 0,
-       0, 1, 0, 0;
-  VectorXd y = z - H * x_;
-  MatrixXd S = H * P_ * H.transpose() + R_laser_;
-  MatrixXd K = P_ * H.transpose() * S.inverse();
+  VectorXd y = z - H_laser_ * x_;
+  MatrixXd S = H_laser_ * P_ * H_laser_.transpose() + R_laser_;
+  MatrixXd K = P_ * H_laser_.transpose() * S.inverse();
   x_ = x_ + K * y;
-  P_ = (MatrixXd::Identity(4,4) - K*H)*P_;
+  P_ = (MatrixXd::Identity(4,4) - K*H_laser_)*P_;
 }
 
 void KalmanFilter::RadarUpdate(const VectorXd &z) {
