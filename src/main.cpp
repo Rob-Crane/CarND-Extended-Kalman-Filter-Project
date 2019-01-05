@@ -150,13 +150,17 @@ int main() {
 
   }); // end h.onMessage
 
-  h.onConnection([&h](uWS::WebSocket<uWS::SERVER> ws, uWS::HttpRequest req) {
+  h.onConnection([](uWS::WebSocket<uWS::SERVER> ws, uWS::HttpRequest req) {
     std::cout << "Connected!!!" << std::endl;
   });
 
-  h.onDisconnection([&h](uWS::WebSocket<uWS::SERVER> ws, int code, 
-                         char *message, size_t length) {
-    std::cout << "Disconnected" << std::endl;
+  h.onDisconnection([&fusionEKF, &estimations, &ground_truth](
+                        uWS::WebSocket<uWS::SERVER> ws, int code, 
+                        char *message, size_t length) {
+    std::cout << "Disconnected...resetting filter" << std::endl;
+    fusionEKF = FusionEKF();
+    estimations.clear();
+    ground_truth.clear();
   });
 
   int port = 4567;
